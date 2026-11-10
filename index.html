@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dice Brawler</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --k:#000;--blu:#0000AA;--dgray:#555;--gray:#AAA;--wht:#FFF;
+    --str:#FF5555;--agi:#55FF55;--luk:#FFFF55;--heal:#FF55FF;--cyan:#55FFFF;
+    --stone:#6b6b6b;--stoneL:#9a9a9a;--stoneD:#3a3a3a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:#000;color:var(--wht);font-family:'VT323','Courier New',monospace;
+    display:flex;align-items:center;justify-content:center;overflow:hidden}
+  #game{
+    width:min(calc(100vw - 24px),calc(100vh - 24px));aspect-ratio:1/1;container-type:size;
+    position:relative;padding:1.6cqw;
+    background:
+      repeating-linear-gradient(0deg,transparent 0 3.6cqw,var(--stoneD) 3.6cqw 4cqw),
+      repeating-linear-gradient(90deg,transparent 0 7.6cqw,var(--stoneD) 7.6cqw 8cqw),
+      var(--stone);
+    border:0.6cqw solid; border-color:var(--stoneL) var(--stoneD) var(--stoneD) var(--stoneL);
+    display:grid;gap:1.2cqw;
+    grid-template-rows:5cqw 1fr 19cqw 13cqw 8cqw;
+    font-size:3.4cqw;line-height:1;
+    image-rendering:pixelated;
+  }
+  .panel{background:#000;border:0.5cqw solid;border-color:var(--stoneD) var(--stoneL) var(--stoneL) var(--stoneD);min-height:0}
+  .title{display:flex;align-items:center;justify-content:space-between;padding:0 1cqw;color:var(--luk);
+    font-size:4.2cqw;text-shadow:0.3cqw 0.3cqw 0 #AA5500;letter-spacing:0.2cqw}
+  .title small{color:var(--gray);font-size:3cqw;text-shadow:none}
+
+  .top{display:grid;grid-template-columns:64fr 36fr;gap:1.2cqw;min-height:0}
+  #view{width:100%;height:100%;display:block;image-rendering:pixelated}
+  .side{display:flex;flex-direction:column;padding:1cqw;gap:0.7cqw;font-size:3.1cqw;overflow:hidden}
+  .portrait{display:flex;gap:1cqw;align-items:center}
+  #hero{width:9cqw;height:10.5cqw;image-rendering:pixelated;border:0.3cqw solid var(--dgray);background:var(--blu)}
+  .name{color:var(--cyan)}
+  #eName{color:var(--str)}
+  .bar{height:1.8cqw;background:#300;border:0.25cqw solid var(--dgray);margin-top:0.4cqw}
+  .bar i{display:block;height:100%;background:var(--str);transition:width .3s steps(6)}
+  #pHp{background:var(--agi)}
+  .row2{display:flex;justify-content:space-between;color:var(--gray)}
+  #ePas{color:var(--luk)}
+  #intent{padding:0.4cqw 0.6cqw;border:0.3cqw solid var(--dgray);text-align:center}
+  #intent.strike{color:var(--str);border-color:var(--str)}
+  #intent.guard{color:var(--cyan);border-color:var(--cyan)}
+  .kv{display:flex;justify-content:space-between;color:var(--gray)}
+  .kv b{font-weight:normal}
+  .sep{border-top:0.3cqw dashed var(--dgray);margin:0.2cqw 0}
+
+  .mid{display:grid;grid-template-columns:32fr 68fr;gap:1.2cqw;min-height:0}
+  .tray{display:flex;flex-direction:column;padding:0.8cqw;gap:0.8cqw}
+  .lbl{color:var(--gray);font-size:2.8cqw}
+  #dice{flex:1;display:flex;gap:1cqw;align-items:center;justify-content:center}
+  .die{width:8.4cqw;height:8.4cqw;font:inherit;font-size:6cqw;color:#000;cursor:pointer;
+    background:var(--wht);border:0.5cqw solid;border-color:#fff #888 #888 #fff;padding:0;
+    display:flex;align-items:center;justify-content:center}
+  .die.sel{outline:0.5cqw solid var(--cyan);transform:translateY(-0.8cqw)}
+  .die.str{background:var(--str)}.die.agi{background:var(--agi)}.die.luk{background:var(--luk)}.die.heal{background:var(--heal)}
+  .die.empty{background:#222;border-color:#333;cursor:default;color:#444}
+  .die.roll{animation:roll .35s steps(4)}
+  @keyframes roll{0%{transform:rotate(0) scale(.6)}100%{transform:rotate(360deg) scale(1)}}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1cqw}
+  .stat{font:inherit;color:inherit;cursor:pointer;padding:0.8cqw 0.3cqw;text-align:center;
+    background:#000;border:0.5cqw solid;border-color:var(--stoneD) var(--stoneL) var(--stoneL) var(--stoneD);
+    display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+  .stat:hover{border-color:var(--cyan)}
+  .stat .n{font-size:3.2cqw}
+  .stat .v{font-size:6.4cqw}
+  .stat .p{font-size:3cqw;color:var(--cyan);min-height:3cqw}
+  .stat .e{font-size:2.6cqw;color:var(--gray);white-space:nowrap}
+  .stat.str .n,.stat.str .v{color:var(--str)}
+  .stat.agi .n,.stat.agi .v{color:var(--agi)}
+  .stat.luk .n,.stat.luk .v{color:var(--luk)}
+  .stat.heal .n,.stat.heal .v{color:var(--heal)}
+
+  #log{padding:0.8cqw 1.2cqw;overflow:hidden;font-size:3.1cqw;line-height:1.15;color:var(--gray);
+    border-color:var(--blu);display:flex;flex-direction:column;justify-content:flex-end}
+  #log div:last-child{color:var(--wht)}
+
+  .btns{display:grid;grid-template-columns:1fr 1fr 0.55fr;gap:1.2cqw}
+  .btn{font:inherit;font-size:4cqw;color:var(--wht);cursor:pointer;
+    background:var(--blu);border:0.5cqw solid;border-color:#5555FF #000055 #000055 #5555FF}
+  .btn:active:not(:disabled){border-color:#000055 #5555FF #5555FF #000055}
+  .btn:disabled,.btn.red:disabled{background:#222;color:#555;border-color:#333;cursor:not-allowed}
+  .btn.red{background:#AA0000;border-color:#FF5555 #550000 #550000 #FF5555}
+  .btn.gray{background:var(--dgray);border-color:var(--gray) #222 #222 var(--gray);font-size:3.2cqw}
+
+  .overlay{position:absolute;inset:6cqw;background:#000;border:0.6cqw double var(--cyan);display:none;z-index:5;padding:2cqw}
+  .overlay.on{display:flex}
+  #banner{flex-direction:column;align-items:center;justify-content:center;gap:3cqw;inset:24cqw 12cqw}
+  #bannerT{font-size:8cqw;text-align:center}
+  #bannerS{color:var(--gray);font-size:3.2cqw;text-align:center;line-height:1.3}
+  #dbg{flex-direction:column;gap:1.4cqw;font-size:3cqw}
+  #dbg h2{margin:0;font-weight:normal;color:var(--cyan);font-size:4.4cqw;display:flex;justify-content:space-between}
+  #dbgGrid{flex:1;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:1cqw 3cqw;align-content:start}
+  #dbgGrid h3{grid-column:1/-1;margin:1cqw 0 0;font-weight:normal;color:var(--luk);font-size:3.2cqw;border-bottom:0.3cqw dashed var(--dgray)}
+  #dbg label{display:flex;justify-content:space-between;align-items:center;color:var(--gray)}
+  #dbg input{width:11cqw;font:inherit;background:var(--blu);color:var(--wht);border:0.3cqw solid var(--cyan);padding:0.2cqw 0.6cqw}
+  #dbg .row{display:flex;gap:1.2cqw}
+  #dbg .row .btn{flex:1;font-size:3.4cqw;padding:1cqw}
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="panel title">DICE BRAWLER <small id="turnT">FIGHT 1/3 · TURN 1</small></div>
+
+  <div class="top">
+    <div class="panel"><canvas id="view" width="160" height="100"></canvas></div>
+    <div class="panel side">
+      <div class="portrait"><canvas id="hero" width="12" height="14"></canvas>
+        <div style="flex:1"><div class="name">HERO</div>
+          <div class="bar"><i id="pHp"></i></div><div id="pHpT"></div></div></div>
+      <div><div id="eName"></div>
+        <div class="bar"><i id="bHp"></i></div>
+        <div class="row2"><span id="bHpT"></span><span id="ePas"></span></div></div>
+      <div id="intent"></div>
+      <div class="sep"></div>
+      <div class="kv">Damage<b id="kDmg"></b></div>
+      <div class="kv">Dodge<b id="kDod"></b></div>
+      <div class="kv">Crit<b id="kCrit"></b></div>
+    </div>
+  </div>
+
+  <div class="mid">
+    <div class="panel tray"><div class="lbl" id="hint">THROW THE DICE</div><div id="dice"></div></div>
+    <div class="stats">
+      <button class="stat str" data-k="str"><span class="n">STR</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
+      <button class="stat agi" data-k="agi"><span class="n">AGI</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
+      <button class="stat luk" data-k="luk"><span class="n">LUCK</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
+      <button class="stat heal" data-k="heal"><span class="n">HEAL</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
+    </div>
+  </div>
+
+  <div class="panel" id="log"></div>
+
+  <div class="btns">
+    <button class="btn" id="throw">THROW DICE</button>
+    <button class="btn red" id="attack" disabled>ATTACK!</button>
+    <button class="btn gray" id="dbgBtn">DEBUG</button>
+  </div>
+
+  <div class="overlay" id="dbg">
+    <h2>DEBUG VALUES <span style="color:var(--gray);font-size:3cqw">` to toggle</span></h2>
+    <div id="dbgGrid"></div>
+    <div class="row"><button class="btn red" id="reset">APPLY &amp; NEW RUN</button><button class="btn gray" id="dbgClose">CLOSE</button></div>
+  </div>
+  <div class="overlay" id="banner"><span id="bannerT"></span><div id="bannerS"></div><button class="btn" id="again" style="padding:1.5cqw 4cqw"></button></div>
+</div>
+
+<script>
+// ===== Adjustable values (all editable in Debug view) =====
+const DEFAULTS = {
+  playerHp:40, diceCount:3, diceSides:6,
+  startStr:0, startAgi:0, startLuk:0,
+  baseDamage:2, dmgPerStr:1,
+  dodgePerAgi:2, maxDodge:50,
+  critPerLuk:3, maxCrit:75, critMult:2,
+  healPerPip:2, betweenFightHeal:0,
+  guardMult:0.5, enemyDmgVar:1, heavyChance:20, heavyMult:1.5,
+};
+const LABELS = {
+  playerHp:'Player HP', diceCount:'Dice per throw', diceSides:'Die sides',
+  startStr:'Start STR', startAgi:'Start AGI', startLuk:'Start LUCK',
+  baseDamage:'Base damage', dmgPerStr:'Dmg per STR',
+  dodgePerAgi:'Dodge % per AGI', maxDodge:'Max dodge %',
+  critPerLuk:'Crit % per LUCK', maxCrit:'Max crit %', critMult:'Crit multiplier',
+  healPerPip:'HP per heal pip', betweenFightHeal:'Heal between fights',
+  guardMult:'Guard dmg mult', enemyDmgVar:'Enemy dmg +/-', heavyChance:'Heavy strike %', heavyMult:'Heavy strike mult',
+};
+const V = {...DEFAULTS};
+const $ = s => document.querySelector(s);
+let S;
+
+// ===== Pixel art (EGA palette, left halves mirrored) =====
+const PAL = {k:'#000',G:'#00AA00',g:'#55FF55',r:'#AA0000',R:'#FF5555',Y:'#FFFF55',w:'#FFFFFF',b:'#AA5500',
+             S:'#555555',s:'#AAAAAA',f:'#FF9966',c:'#AA0000',B:'#5555FF'};
+const mirror = rows => rows.map(r => r + [...r].reverse().join(''));
+const OGRE = mirror([
+  "..w.......","..ww......","...ww..kkk","....wkkGGG","....kGGggg","...kGggggg",
+  "...kGgkkgg","...kGgrYkg","...kGgkkgg","..kkGggggg",".kGkGgkkkk",".kGkGkwkwk",
+  ".kGkGkkkkk","kGGkGGgggg","kGgkkGGggg","kGg.kbbbbb","kGg.kbYbbb","kkk.kGGggg",
+  "....kGGkkk","...kGGk...","...kkkk...",
+]);
+const KNIGHT = mirror([
+  "........RR","........RR",".......kkr",".....kkkkk","....ksssss","....kssssw",
+  "....kkkkkk","....ksYkkk","....kssssS",".....kssss","..kkkkkkkk",".ksswkssss",
+  ".ksskkssSs",".kssksssss",".kskkbbbbb",".kwk.kBBBB",".kkk.ksssk",".....kssk.",
+  ".....kssk.","....kkssk.","....kkkkk.",
+]);
+const BERSERK = mirror([
+  "...w......","...ww.....","....wwkkkk",".....ksSSs",".....kssss","....kkffff",
+  "....kfkRff","....kfffff","....krrkkk","....krrrrr","..kkkkkrrr",".kfffffkrr",
+  "kfffffbfff","kffkffbfff","kffkfffbff","kfk.kbbbbb","kkk.kbYbbb","....kbbbbb",
+  "....kffkkk","...kffk...","...kkkk...",
+]);
+const HERO = mirror([
+  "...kkk","..kSSS",".kSsss","kSskkk","kSkfff","kSkfkf","kSkfff","kSkffk",
+  ".kkfff","..kkff","...kkk","..kccc",".kcccc","kccccc",
+]);
+function drawSprite(ctx, spr, x, y, sc, flash){
+  spr.forEach((row,j)=>[...row].forEach((ch,i)=>{
+    if(ch==='.') return;
+    ctx.fillStyle = flash ? '#FFF' : PAL[ch];
+    ctx.fillRect(x+i*sc, y+j*sc, sc, sc);
+  }));
+}
+drawSprite($('#hero').getContext('2d'), HERO, 0, 0, 1);
+
+// ===== Fighter roster (editable in Debug view) =====
+// rage = % bonus strike damage at 0 HP (scales with HP lost). guard = % chance to guard per turn.
+const FIGHTER_DEFAULTS = [
+  {name:'IRON KNIGHT', sprite:KNIGHT, intro:'An IRON KNIGHT blocks the gate. Plate armor - hit HARD.',
+   hp:60, dmg:6, armor:5, regen:0, rage:0, guard:35},
+  {name:'BERSERKER', sprite:BERSERK, intro:'A BERSERKER howls. It gets angrier as it bleeds.',
+   hp:200, dmg:9, armor:0, regen:0, rage:100, guard:10},
+  {name:'OGRE LORD', sprite:OGRE, intro:'The OGRE LORD rises. Its wounds close every turn.',
+   hp:420, dmg:13, armor:2, regen:12, rage:0, guard:25},
+];
+const FIGHTERS = FIGHTER_DEFAULTS.map(f=>({...f}));
+const F_KEYS = {hp:'HP', dmg:'Strike dmg', armor:'Armor', regen:'Regen / turn', rage:'Rage % at 0 HP', guard:'Guard chance %'};
+const foe = () => FIGHTERS[S.fight];
+
+// ===== Dungeon view =====
+const cv=$('#view'), cx=cv.getContext('2d');
+const R=[[0,0,160,100],[30,17,100,66],[54,32,52,36]]; // depth frames x,y,w,h
+const fx={bossFlash:0, redFlash:0, shake:0, floats:[], dead:false};
+const lerp=(a,b,t)=>a+(b-a)*t;
+function poly(pts,fill){cx.beginPath();pts.forEach(([x,y],i)=>i?cx.lineTo(x,y):cx.moveTo(x,y));cx.closePath();cx.fillStyle=fill;cx.fill();}
+function wall(a,b,side,base,line){
+  const ax=side?a[0]+a[2]:a[0], bx=side?b[0]+b[2]:b[0];
+  poly([[ax,a[1]],[bx,b[1]],[bx,b[1]+b[3]],[ax,a[1]+a[3]]],base);
+  cx.strokeStyle=line;cx.lineWidth=1;
+  for(let t=0;t<=1;t+=1/8){cx.beginPath();cx.moveTo(ax,a[1]+a[3]*t);cx.lineTo(bx,b[1]+b[3]*t);cx.stroke();}
+  for(let u=1/3;u<1;u+=1/3){const x=lerp(ax,bx,u),y0=lerp(a[1],b[1],u),h=lerp(a[3],b[3],u);
+    for(let t=0;t<1;t+=1/8){const o=(Math.round(t*8)%2)*0.5/3;const xx=lerp(ax,bx,u+o*0.5);
+      cx.beginPath();cx.moveTo(xx,y0+h*t);cx.lineTo(xx,y0+h*(t+1/8));cx.stroke();}}
+}
+// tiny pixel icons for the telegraph
+const SWORD=["....w","...w.","..w..","Yw...","bY..."], SHIELD=["BBBBB","BwBwB","BBwBB",".BBB.","..B.."];
+function drawView(time){
+  cx.fillStyle='#000';cx.fillRect(0,0,160,100);
+  poly([[0,0],[160,0],[R[2][0]+R[2][2],R[2][1]],[R[2][0],R[2][1]]],'#1c1c1c');
+  poly([[0,100],[160,100],[R[2][0]+R[2][2],R[2][1]+R[2][3]],[R[2][0],R[2][1]+R[2][3]]],'#2e2a26');
+  cx.strokeStyle='#1a1714';
+  for(let u=0;u<=1;u+=1/6){cx.beginPath();cx.moveTo(lerp(0,160,u),100);cx.lineTo(lerp(R[2][0],R[2][0]+R[2][2],u),R[2][1]+R[2][3]);cx.stroke();}
+  [R[1]].forEach(r=>{cx.beginPath();cx.moveTo(0,r[1]+r[3]+9);cx.lineTo(160,r[1]+r[3]+9);cx.moveTo(r[0],r[1]+r[3]);cx.lineTo(r[0]+r[2],r[1]+r[3]);cx.stroke();});
+  wall(R[0],R[1],0,'#5a5a5a','#333'); wall(R[0],R[1],1,'#4e4e4e','#2a2a2a');
+  wall(R[1],R[2],0,'#3a3a3a','#222'); wall(R[1],R[2],1,'#333','#1e1e1e');
+  cx.fillStyle='#0a0a0a';cx.fillRect(...R[2]);
+  const fl=Math.sin(time/90)+Math.sin(time/53);
+  [[12,40],[148,40]].forEach(([x,y])=>{
+    cx.fillStyle='#AA5500';cx.fillRect(x-1,y,3,8);
+    cx.fillStyle='#FF5555';cx.fillRect(x-2,y-4-Math.round(fl),5,5+Math.round(fl));
+    cx.fillStyle='#FFFF55';cx.fillRect(x-1,y-3-Math.round(fl*0.6),3,3);
+    cx.fillStyle='rgba(255,170,60,0.06)';cx.beginPath();cx.arc(x,y,18+fl*2,0,7);cx.fill();
+  });
+  if(S && !fx.dead){
+    const sx=(fx.shake>0?(fx.shake%2?3:-3):0), bob=Math.round(Math.sin(time/400));
+    drawSprite(cx,foe().sprite,50+sx,22+bob,3,fx.bossFlash>0);
+    // intent bubble above enemy
+    if(S.intent && !S.busy && !S.over){
+      const it=S.intent, y=4+Math.round(Math.sin(time/250)), col=it.type==='guard'?'#55FFFF':'#FF5555';
+      cx.fillStyle='#000';cx.fillRect(62,y,36,14);
+      cx.strokeStyle=col;cx.strokeRect(62.5,y+0.5,35,13);
+      drawSprite(cx,it.type==='guard'?SHIELD:SWORD,65,y+2,2);
+      cx.textAlign='left';cx.font='14px VT323, monospace';cx.fillStyle=col;
+      cx.fillText(it.type==='guard'?'GRD':String(it.dmg),77,y+11);
+    }
+  }
+  if(fx.redFlash>0){cx.fillStyle=`rgba(170,0,0,${fx.redFlash/16})`;cx.fillRect(0,0,160,100);}
+  cx.textAlign='center';cx.font='16px VT323, monospace';
+  fx.floats=fx.floats.filter(f=>f.t>0);
+  fx.floats.forEach(f=>{f.t--;f.y-=0.4;cx.fillStyle='#000';cx.fillText(f.text,f.x+1,f.y+1);cx.fillStyle=f.c;cx.fillText(f.text,f.x,f.y);});
+  if(fx.bossFlash>0)fx.bossFlash--; if(fx.redFlash>0)fx.redFlash--; if(fx.shake>0)fx.shake--;
+}
+(function loop(t){drawView(t);requestAnimationFrame(loop);})(0);
+const float=(text,c,x=80,y=40)=>fx.floats.push({text,c,x,y,t:60});
+
+// ===== Game logic =====
+const log=t=>{const d=document.createElement('div');d.textContent='> '+t;const l=$('#log');l.append(d);while(l.children.length>4)l.firstChild.remove();};
+const rnd=n=>1+Math.floor(Math.random()*n);
+const dodgeOf=a=>Math.min(V.maxDodge,a*V.dodgePerAgi);
+const critOf=l=>Math.min(V.maxCrit,l*V.critPerLuk);
+const dmgOf=s=>Math.round(V.baseDamage+s*V.dmgPerStr);
+const pending=k=>S.dice.reduce((a,v,i)=>a+(S.assign[i]===k?v:0),0);
+
+function rollIntent(){
+  const f=foe();
+  if(Math.random()*100<f.guard) return {type:'guard'};
+  let d=f.dmg+Math.round((Math.random()*2-1)*V.enemyDmgVar);
+  d*=1+f.rage/100*(1-S.eHp/f.hp);
+  const heavy=Math.random()*100<V.heavyChance;
+  if(heavy)d*=V.heavyMult;
+  return {type:'strike',dmg:Math.max(1,Math.round(d)),heavy};
+}
+
+function newRun(){
+  S={pHp:V.playerHp,str:V.startStr,agi:V.startAgi,luk:V.startLuk,
+     fight:0,totalTurns:0,healed:0,over:false};
+  $('#log').innerHTML='';
+  startFight();
+}
+function startFight(){
+  const f=foe();
+  Object.assign(S,{eHp:f.hp,turn:1,dice:[],assign:[],sel:null,busy:false,over:false,rolled:false});
+  S.intent=rollIntent();
+  fx.dead=false;fx.floats=[];
+  $('#banner').classList.remove('on');
+  log(f.intro);
+  render();
+}
+
+function passiveText(f){
+  const p=[];
+  if(f.armor)p.push('ARMOR '+f.armor);
+  if(f.regen)p.push('REGEN '+f.regen);
+  if(f.rage)p.push('RAGE');
+  return p.join(' ');
+}
+
+function render(){
+  const f=foe();
+  $('#turnT').textContent=`FIGHT ${S.fight+1}/${FIGHTERS.length} · TURN ${S.turn}`;
+  $('#pHp').style.width=Math.max(0,S.pHp/V.playerHp*100)+'%';
+  $('#bHp').style.width=Math.max(0,S.eHp/f.hp*100)+'%';
+  $('#pHpT').textContent='HP '+Math.max(0,S.pHp)+'/'+V.playerHp;
+  $('#eName').textContent=f.name;
+  $('#bHpT').textContent='HP '+Math.max(0,S.eHp)+'/'+f.hp;
+  $('#ePas').textContent=passiveText(f);
+  const it=S.intent, iEl=$('#intent');
+  iEl.className=it&&!S.over?it.type:'';
+  iEl.textContent=!it||S.over?'-':it.type==='guard'?'NEXT: GUARD':`NEXT: ${it.heavy?'HEAVY ':''}STRIKE ${it.dmg}`;
+
+  $('#kDmg').textContent=dmgOf(S.str);
+  $('#kDod').textContent=dodgeOf(S.agi)+'%';
+  $('#kCrit').textContent=critOf(S.luk)+'%';
+
+  const dc=$('#dice');dc.innerHTML='';
+  const n=S.dice.length||V.diceCount;
+  for(let i=0;i<n;i++){
+    const b=document.createElement('button'),v=S.dice[i];
+    if(v==null){b.className='die empty';b.textContent='?';dc.append(b);continue;}
+    b.className='die'+(S.sel===i?' sel':'')+(S.assign[i]?' '+S.assign[i]:'')+(S.rolled?' roll':'');
+    b.textContent=v;
+    b.onclick=()=>{if(S.busy||S.over)return;if(S.assign[i]){S.assign[i]=null;S.sel=i;}else S.sel=(S.sel===i?null:i);render();};
+    dc.append(b);
+  }
+  S.rolled=false;
+
+  document.querySelectorAll('.stat').forEach(el=>{
+    const k=el.dataset.k,p=pending(k);
+    if(k==='heal'){
+      const amt=Math.min(V.playerHp-S.pHp,p*V.healPerPip);
+      el.querySelector('.v').textContent=p?'+'+p:'-';
+      el.querySelector('.p').textContent='';
+      el.querySelector('.e').textContent=p?`+${amt} HP`:`${V.healPerPip}HP/PIP`;
+      return;
+    }
+    const v=S[k]+p;
+    el.querySelector('.v').textContent=v;
+    el.querySelector('.p').textContent=p?'+'+p:'';
+    el.querySelector('.e').textContent=k==='str'?dmgOf(v)+' DMG':k==='agi'?dodgeOf(v)+'% DODGE':critOf(v)+'% CRIT';
+  });
+
+  const all=S.dice.length&&S.assign.every(Boolean);
+  $('#throw').disabled=S.busy||S.over||S.dice.length>0;
+  $('#attack').disabled=!all||S.busy||S.over;
+  $('#hint').textContent=!S.dice.length?'THROW THE DICE':all?'READY - ATTACK!':'PICK DIE > PICK SLOT';
+}
+
+$('#throw').onclick=()=>{
+  S.dice=Array.from({length:V.diceCount},()=>rnd(V.diceSides));
+  S.assign=S.dice.map(()=>null);S.sel=0;S.rolled=true;
+  log('You throw '+S.dice.join(' - ')+'.');
+  render();
+};
+document.querySelectorAll('.stat').forEach(el=>el.onclick=()=>{
+  if(S.busy||S.over||!S.dice.length)return;
+  let i=S.sel;if(i==null)i=S.assign.findIndex(a=>!a);
+  if(i<0||S.assign[i])return;
+  S.assign[i]=el.dataset.k;
+  S.sel=S.assign.findIndex(a=>!a);if(S.sel<0)S.sel=null;
+  render();
+});
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('#attack').onclick=async()=>{
+  S.busy=true;
+  const f=foe(), it=S.intent;
+  const g={str:pending('str'),agi:pending('agi'),luk:pending('luk')}, hp=pending('heal');
+  for(const k in g)S[k]+=g[k];
+  const parts=[];for(const k in g)if(g[k])parts.push(k.toUpperCase()+'+'+g[k]);
+  if(parts.length)log('Trained: '+parts.join(' '));
+  if(hp){
+    const amt=Math.min(V.playerHp-S.pHp,hp*V.healPerPip);
+    S.pHp+=amt;S.healed+=amt;
+    float('+'+amt+' HP','#FF55FF',80,80);log(`You heal ${amt} HP.`);
+  }
+  S.dice=[];S.assign=[];S.sel=null;render();
+  await sleep(450);
+
+  // player strikes
+  let dmg=dmgOf(S.str),crit=Math.random()*100<critOf(S.luk);
+  if(crit)dmg=Math.round(dmg*V.critMult);
+  dmg=Math.max(1,dmg-f.armor);
+  const guarded=it.type==='guard';
+  if(guarded)dmg=Math.max(1,Math.round(dmg*V.guardMult));
+  S.eHp-=dmg;fx.bossFlash=8;fx.shake=10;
+  float((crit?'CRIT ':'-')+dmg+(crit?'!':''),crit?'#FFFF55':'#FFFFFF',80,30);
+  let msg=crit?`CRITICAL HIT for ${dmg}`:`You hit for ${dmg}`;
+  if(f.armor)msg+=` (armor -${f.armor})`;
+  if(guarded)msg+=' - it guards, half damage';
+  log(msg+'.');
+  render();
+  if(S.eHp<=0)return fightWon();
+  await sleep(750);
+
+  // enemy acts
+  if(guarded){
+    float('GUARD','#55FFFF',80,70);log(`The ${f.name} holds its guard.`);
+  }else if(Math.random()*100<dodgeOf(S.agi)){
+    float('DODGE!','#55FF55',80,70);log(`You dodge the ${it.heavy?'heavy ':''}strike!`);
+  }else{
+    S.pHp-=it.dmg;fx.redFlash=12;float('-'+it.dmg,'#FF5555',80,75);
+    log(`The ${f.name} ${it.heavy?'SMASHES':'hits'} you for ${it.dmg}.`);render();
+    if(S.pHp<=0)return end(false);
+  }
+  if(f.regen&&S.eHp<f.hp){
+    const r=Math.min(f.regen,f.hp-S.eHp);S.eHp+=r;
+    await sleep(300);float('+'+r,'#55FF55',110,45);log(`The ${f.name} regenerates ${r} HP.`);
+  }
+  S.turn++;S.totalTurns++;S.intent=rollIntent();S.busy=false;render();
+};
+
+function fightWon(){
+  S.totalTurns++;S.over=true;fx.dead=true;render();
+  const f=foe();
+  log(`The ${f.name} falls!`);
+  if(S.fight>=FIGHTERS.length-1)return end(true);
+  setTimeout(()=>showBanner(f.name+' DEFEATED','var(--luk)',
+    `Took ${S.turn} turns. HP ${S.pHp}/${V.playerHp}.<br>Next: ${FIGHTERS[S.fight+1].name}`,'NEXT FIGHT',()=>{
+      S.fight++;
+      if(V.betweenFightHeal){const a=Math.min(V.playerHp-S.pHp,V.betweenFightHeal);S.pHp+=a;if(a)log(`You catch your breath: +${a} HP.`);}
+      startFight();
+    }),600);
+}
+function end(win){
+  S.over=true;render();
+  if(!win)log('Darkness takes you...');
+  const sum=`${win?'Gauntlet cleared':'Fell to the '+foe().name} in ${S.totalTurns} turns.<br>STR ${S.str} · AGI ${S.agi} · LUCK ${S.luk} · healed ${S.healed}`;
+  setTimeout(()=>showBanner(win?'VICTORY!':'YOU DIED',win?'var(--luk)':'var(--str)',sum,'NEW RUN',newRun),600);
+}
+function showBanner(title,color,sub,btn,fn){
+  $('#bannerT').textContent=title;$('#bannerT').style.color=color;
+  $('#bannerS').innerHTML=sub;$('#again').textContent=btn;$('#again').onclick=fn;
+  $('#banner').classList.add('on');
+}
+
+// ===== Debug =====
+const grid=$('#dbgGrid');
+function numInput(label,get,set){
+  const l=document.createElement('label');l.textContent=label;
+  const i=document.createElement('input');i.type='number';i.step='any';i.value=get();
+  i.oninput=()=>{const n=parseFloat(i.value);if(!isNaN(n)){set(n);render();}};
+  l.append(i);grid.append(l);
+}
+const h3=t=>{const h=document.createElement('h3');h.textContent=t;grid.append(h);};
+h3('GENERAL');
+for(const k in V)numInput(LABELS[k],()=>V[k],n=>V[k]=n);
+FIGHTERS.forEach((f,fi)=>{h3(`FIGHT ${fi+1}: ${f.name}`);for(const k in F_KEYS)numInput(F_KEYS[k],()=>f[k],n=>f[k]=n);});
+const toggleDbg=()=>$('#dbg').classList.toggle('on');
+$('#dbgBtn').onclick=toggleDbg;$('#dbgClose').onclick=toggleDbg;
+$('#reset').onclick=()=>{$('#dbg').classList.remove('on');newRun();};
+addEventListener('keydown',e=>{if(e.key==='`')toggleDbg();});
+
+newRun();
+</script>
+</body>
+</html>
