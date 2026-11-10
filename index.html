@@ -6,151 +6,85 @@
 <title>Dice Brawler</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --k:#000;--blu:#0000AA;--dgray:#555;--gray:#AAA;--wht:#FFF;
-    --str:#FF5555;--agi:#55FF55;--luk:#FFFF55;--heal:#FF55FF;--cyan:#55FFFF;
-    --stone:#6b6b6b;--stoneL:#9a9a9a;--stoneD:#3a3a3a;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:#000;color:var(--wht);font-family:'VT323','Courier New',monospace;
-    display:flex;align-items:center;justify-content:center;overflow:hidden}
-  #game{
-    width:min(calc(100vw - 24px),calc(100vh - 24px));aspect-ratio:1/1;container-type:size;
-    position:relative;padding:1.6cqw;
-    background:
-      repeating-linear-gradient(0deg,transparent 0 3.6cqw,var(--stoneD) 3.6cqw 4cqw),
-      repeating-linear-gradient(90deg,transparent 0 7.6cqw,var(--stoneD) 7.6cqw 8cqw),
-      var(--stone);
-    border:0.6cqw solid; border-color:var(--stoneL) var(--stoneD) var(--stoneD) var(--stoneL);
-    display:grid;gap:1.2cqw;
-    grid-template-rows:5cqw 1fr 19cqw 13cqw 8cqw;
-    font-size:3.4cqw;line-height:1;
-    image-rendering:pixelated;
-  }
-  .panel{background:#000;border:0.5cqw solid;border-color:var(--stoneD) var(--stoneL) var(--stoneL) var(--stoneD);min-height:0}
-  .title{display:flex;align-items:center;justify-content:space-between;padding:0 1cqw;color:var(--luk);
-    font-size:4.2cqw;text-shadow:0.3cqw 0.3cqw 0 #AA5500;letter-spacing:0.2cqw}
-  .title small{color:var(--gray);font-size:3cqw;text-shadow:none}
+:root{--blu:#0000aa;--gray:#aaa;--dgray:#555;--wht:#fff;--str:#ff5555;--agi:#55ff55;--luk:#ffff55;--heal:#ff55ff;--cyan:#55ffff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;background:#101014;color:#fff;font-family:'VT323','Courier New',monospace;display:grid;place-items:center;padding:16px;line-height:1}button,input{font:inherit}button{touch-action:manipulation;-webkit-appearance:none;appearance:none;border-radius:0}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid white;outline-offset:3px}
+#game{--game-size:max(640px,min(900px,calc(100vw - 32px),calc(100vh - 32px)));width:var(--game-size);height:var(--game-size);min-width:640px;container-type:inline-size;position:relative;padding:1.3%;background:#000;border:4px solid #555;box-shadow:0 0 0 2px #000;display:grid;grid-template-rows:5% 37% 50% 5%;gap:1%;font-size:2.5cqw;image-rendering:pixelated}
+@supports(height:100dvh){#game{--game-size:max(640px,min(900px,calc(100vw - 32px),calc(100dvh - 32px)))}}
+.panel{min-width:0;min-height:0}.title{display:flex;justify-content:space-between;align-items:center;color:var(--luk);padding:0 .8cqw;font-size:3.5cqw;letter-spacing:.1cqw}.title small{font-size:2.5cqw;color:var(--gray)}.tools button{font-size:1.9cqw;background:none;color:var(--gray);border:1px solid #555;padding:.5cqw;cursor:pointer}
+.top{border:2px solid #555;position:relative}.arena{height:100%;position:relative;overflow:hidden}#view{width:100%;height:100%;object-fit:fill;display:block;image-rendering:pixelated}.enemy-info{position:absolute;inset:1.2cqw 1.4cqw;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:3.4cqw 2.2cqw 1fr 5cqw;gap:.4cqw 3cqw;pointer-events:none;text-shadow:2px 2px #000}.owner-label{display:none}#eName{font-size:3.5cqw;color:white;grid-column:1}#bHpT{grid-column:2;grid-row:1;text-align:right;align-self:center;font-size:2.8cqw}.bar{height:1.5cqw;background:#222;border:1px solid #aaa}.bar i{display:block;height:100%;background:var(--str);transition:width .2s steps(5)}.enemy-info .bar{grid-column:1/-1;grid-row:2;width:100%}#ePas{grid-column:1;grid-row:4;align-self:center;font-size:2.3cqw;line-height:1.1;background:#000d;padding:.8cqw;color:var(--luk)}#intent{grid-column:2;grid-row:4;align-self:center;justify-self:end;font-size:2.6cqw;padding:.8cqw;background:#000;border:1px solid var(--str);color:var(--str)}#intent.guard{color:var(--cyan);border-color:var(--cyan)}
+.player-zone{border:2px solid #aaa;background:#11111b;display:grid;grid-template-rows:5.5cqw 10cqw minmax(0,1fr) 7cqw 6cqw;gap:1cqw;padding:1.2cqw}.player-hud{display:flex;align-items:center;gap:2cqw}.portrait{display:flex;align-items:center;gap:1cqw;flex:1}#hero{width:4.8cqw;height:5.6cqw;image-rendering:pixelated;background:#0000aa}.player-health{flex:1}.name{display:flex;justify-content:space-between;font-size:2.7cqw;color:var(--cyan);margin-bottom:.5cqw}.name span{color:white}#pHp{background:var(--agi)}.mid{display:contents}.tray{display:grid;grid-template-columns:1fr auto;align-items:center;position:relative;gap:1cqw;border-top:1px solid #555;border-bottom:1px solid #555;padding:.8cqw 0}.lbl{font-size:2.5cqw;color:var(--cyan);max-width:37cqw;line-height:1.1}#dice{display:flex;gap:1cqw;overflow:auto;padding:.5cqw}.die{position:relative;width:6.8cqw;height:8cqw;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#aaa;color:#000;border:2px outset white;cursor:pointer;padding:0;font-size:4.5cqw}.die small{font-size:1.7cqw;font-weight:bold}.die.sel{outline:2px solid var(--cyan);outline-offset:2px;background:white}.die.sel:before{content:'▼';position:absolute;top:0;left:.2cqw;font-size:1.2cqw;color:var(--cyan)}.die.str,.die.agi,.die.luk,.die.heal{border-style:solid;border-color:currentColor;background:#222;color:white}.die.str small{color:var(--str)}.die.agi small{color:var(--agi)}.die.luk small{color:var(--luk)}.die.heal small{color:var(--heal)}.die.empty{background:#171721;color:#777;border:2px dashed #555}.die:disabled{cursor:default}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1cqw}.stat{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1cqw .3cqw;background:#000;color:#fff;border:1px solid #555;cursor:pointer}.stat .n{font-size:2.7cqw}.stat .v{font-size:3.6cqw;white-space:nowrap}.stat .e{font-size:2.1cqw;line-height:1.1}.stat .e{color:#aaa}.stat.str .n{color:var(--str)}.stat.agi .n{color:var(--agi)}.stat.luk .n{color:var(--luk)}.stat.heal .n{color:var(--heal)}.stat:not(:disabled){border:2px dashed var(--cyan)}.stat:not(:disabled):hover{background:#002b2b;border-style:solid}.stat.assigned{box-shadow:inset 0 -3px #aaa}.stat:disabled{cursor:default}.stat.capped .e{color:var(--luk)}#warning{position:absolute;left:0;bottom:.2cqw;margin:0;font-size:1.9cqw;color:var(--luk)}#warning:empty{display:none}#forecast{font-size:2.2cqw;color:var(--gray);align-self:center;white-space:nowrap}.btns{display:grid;grid-template-columns:1fr 2fr;gap:1cqw}.btn{background:#0000aa;color:white;border:2px outset #5555ff;font-size:2.8cqw;padding:.6cqw;cursor:pointer}.btn.red{background:#a00;border-color:#f55}.btn:disabled{background:#222;color:#777;border:1px solid #555;cursor:default}.btn.gray{background:#555}.btn:active:not(:disabled){transform:translateY(1px)}#log{font-size:2.2cqw;line-height:1.15;color:#aaa;overflow:auto;border-top:1px solid #555;padding:.6cqw .8cqw}
+#size-note{display:none;color:#aaa;font:16px/1.4 monospace;max-width:640px;margin:12px 0}@media(max-width:671px),(max-height:671px){body{display:block;place-items:normal;overflow:auto}#game{width:640px;min-width:640px}#size-note{display:block}}
+.overlay{position:absolute;inset:5%;overflow:auto;background:#090909;border:3px double var(--cyan);display:none;z-index:5;padding:3cqw;box-shadow:0 0 0 100vmax #000b}.overlay.on{display:flex}#banner{flex-direction:column;align-items:center;justify-content:center;gap:3cqw}#bannerT{font-size:6cqw;text-align:center}#bannerS{color:var(--gray);font-size:3.2cqw;text-align:center;line-height:1.3}#dbg{flex-direction:column;gap:2cqw}#dbg h2{margin:0;font-weight:normal;color:var(--cyan);font-size:4cqw}#dbgGrid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:1.5cqw 3cqw}#dbgGrid h3{grid-column:1/-1;margin:1cqw 0 0;color:var(--luk);font-size:3cqw}#dbg label{display:flex;justify-content:space-between;align-items:center;gap:1cqw;font-size:2.8cqw;color:var(--gray)}#dbg input{width:10cqw;background:var(--blu);color:white;border:1px solid var(--cyan);padding:.5cqw}#dbg .row{display:flex;gap:1cqw}#dbg .row .btn{flex:1}
 
-  .top{display:grid;grid-template-columns:64fr 36fr;gap:1.2cqw;min-height:0}
-  #view{width:100%;height:100%;display:block;image-rendering:pixelated}
-  .side{display:flex;flex-direction:column;padding:1cqw;gap:0.7cqw;font-size:3.1cqw;overflow:hidden}
-  .portrait{display:flex;gap:1cqw;align-items:center}
-  #hero{width:9cqw;height:10.5cqw;image-rendering:pixelated;border:0.3cqw solid var(--dgray);background:var(--blu)}
-  .name{color:var(--cyan)}
-  #eName{color:var(--str)}
-  .bar{height:1.8cqw;background:#300;border:0.25cqw solid var(--dgray);margin-top:0.4cqw}
-  .bar i{display:block;height:100%;background:var(--str);transition:width .3s steps(6)}
-  #pHp{background:var(--agi)}
-  .row2{display:flex;justify-content:space-between;color:var(--gray)}
-  #ePas{color:var(--luk)}
-  #intent{padding:0.4cqw 0.6cqw;border:0.3cqw solid var(--dgray);text-align:center}
-  #intent.strike{color:var(--str);border-color:var(--str)}
-  #intent.guard{color:var(--cyan);border-color:var(--cyan)}
-  .kv{display:flex;justify-content:space-between;color:var(--gray)}
-  .kv b{font-weight:normal}
-  .sep{border-top:0.3cqw dashed var(--dgray);margin:0.2cqw 0}
+/* Decision console: one instruction, grouped upgrades, one commit summary. */
+.player-hud .portrait{width:100%}.stats{grid-template-rows:2.5cqw minmax(0,1fr);gap:.7cqw 1cqw}
+.upgrade-label,.recovery-label{font-size:2.1cqw;color:var(--gray);align-self:center}.upgrade-label{grid-column:1/4}.recovery-label{grid-column:4;text-align:center;color:var(--heal)}
+.stat.heal{background:#1b001b}.stat .n{font-size:2.6cqw}.stat .v{font-size:3.6cqw}
+#commit-preview{border-top:1px solid #555;display:flex;flex-direction:column;justify-content:center;gap:.8cqw;padding-top:.5cqw;min-width:0}.attack-numbers{display:flex;gap:3cqw;font-size:2.5cqw;color:var(--gray)}.attack-numbers b{color:white;font-weight:normal}#forecast{align-self:auto;font-size:2.2cqw}
+#history{position:relative;border-top:1px solid #555;z-index:2;font-size:2.2cqw}#history summary{display:flex;align-items:center;gap:1cqw;height:100%;padding:0 .8cqw;cursor:pointer;list-style:none}#history summary::-webkit-details-marker{display:none}#latest{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--gray)}.history-toggle{color:var(--cyan);white-space:nowrap}.history-toggle:before{content:'▴ ' }#history[open] .history-toggle:before{content:'▾ '}
+#history #log{position:absolute;bottom:100%;left:-2px;right:-2px;max-height:30cqw;padding:1.2cqw;background:#000;border:2px solid #aaa;font-size:2.4cqw;line-height:1.2;box-shadow:0 -4px 16px #0008}#log div+div{margin-top:.7cqw}#log:empty:before{content:'No earlier events.';color:var(--gray)}
 
-  .mid{display:grid;grid-template-columns:32fr 68fr;gap:1.2cqw;min-height:0}
-  .tray{display:flex;flex-direction:column;padding:0.8cqw;gap:0.8cqw}
-  .lbl{color:var(--gray);font-size:2.8cqw}
-  #dice{flex:1;display:flex;gap:1cqw;align-items:center;justify-content:center}
-  .die{width:8.4cqw;height:8.4cqw;font:inherit;font-size:6cqw;color:#000;cursor:pointer;
-    background:var(--wht);border:0.5cqw solid;border-color:#fff #888 #888 #fff;padding:0;
-    display:flex;align-items:center;justify-content:center}
-  .die.sel{outline:0.5cqw solid var(--cyan);transform:translateY(-0.8cqw)}
-  .die.str{background:var(--str)}.die.agi{background:var(--agi)}.die.luk{background:var(--luk)}.die.heal{background:var(--heal)}
-  .die.empty{background:#222;border-color:#333;cursor:default;color:#444}
-  .die.roll{animation:roll .35s steps(4)}
-  @keyframes roll{0%{transform:rotate(0) scale(.6)}100%{transform:rotate(360deg) scale(1)}}
-
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1cqw}
-  .stat{font:inherit;color:inherit;cursor:pointer;padding:0.8cqw 0.3cqw;text-align:center;
-    background:#000;border:0.5cqw solid;border-color:var(--stoneD) var(--stoneL) var(--stoneL) var(--stoneD);
-    display:flex;flex-direction:column;justify-content:space-between;align-items:center}
-  .stat:hover{border-color:var(--cyan)}
-  .stat .n{font-size:3.2cqw}
-  .stat .v{font-size:6.4cqw}
-  .stat .p{font-size:3cqw;color:var(--cyan);min-height:3cqw}
-  .stat .e{font-size:2.6cqw;color:var(--gray);white-space:nowrap}
-  .stat.str .n,.stat.str .v{color:var(--str)}
-  .stat.agi .n,.stat.agi .v{color:var(--agi)}
-  .stat.luk .n,.stat.luk .v{color:var(--luk)}
-  .stat.heal .n,.stat.heal .v{color:var(--heal)}
-
-  #log{padding:0.8cqw 1.2cqw;overflow:hidden;font-size:3.1cqw;line-height:1.15;color:var(--gray);
-    border-color:var(--blu);display:flex;flex-direction:column;justify-content:flex-end}
-  #log div:last-child{color:var(--wht)}
-
-  .btns{display:grid;grid-template-columns:1fr 1fr 0.55fr;gap:1.2cqw}
-  .btn{font:inherit;font-size:4cqw;color:var(--wht);cursor:pointer;
-    background:var(--blu);border:0.5cqw solid;border-color:#5555FF #000055 #000055 #5555FF}
-  .btn:active:not(:disabled){border-color:#000055 #5555FF #5555FF #000055}
-  .btn:disabled,.btn.red:disabled{background:#222;color:#555;border-color:#333;cursor:not-allowed}
-  .btn.red{background:#AA0000;border-color:#FF5555 #550000 #550000 #FF5555}
-  .btn.gray{background:var(--dgray);border-color:var(--gray) #222 #222 var(--gray);font-size:3.2cqw}
-
-  .overlay{position:absolute;inset:6cqw;background:#000;border:0.6cqw double var(--cyan);display:none;z-index:5;padding:2cqw}
-  .overlay.on{display:flex}
-  #banner{flex-direction:column;align-items:center;justify-content:center;gap:3cqw;inset:24cqw 12cqw}
-  #bannerT{font-size:8cqw;text-align:center}
-  #bannerS{color:var(--gray);font-size:3.2cqw;text-align:center;line-height:1.3}
-  #dbg{flex-direction:column;gap:1.4cqw;font-size:3cqw}
-  #dbg h2{margin:0;font-weight:normal;color:var(--cyan);font-size:4.4cqw;display:flex;justify-content:space-between}
-  #dbgGrid{flex:1;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:1cqw 3cqw;align-content:start}
-  #dbgGrid h3{grid-column:1/-1;margin:1cqw 0 0;font-weight:normal;color:var(--luk);font-size:3.2cqw;border-bottom:0.3cqw dashed var(--dgray)}
-  #dbg label{display:flex;justify-content:space-between;align-items:center;color:var(--gray)}
-  #dbg input{width:11cqw;font:inherit;background:var(--blu);color:var(--wht);border:0.3cqw solid var(--cyan);padding:0.2cqw 0.6cqw}
-  #dbg .row{display:flex;gap:1.2cqw}
-  #dbg .row .btn{flex:1;font-size:3.4cqw;padding:1cqw}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.die.sel{transform:none}}
 </style>
 </head>
 <body>
+<p id="size-note">This square interface needs at least 640 × 640 px. Scroll to use the full-size controls, or open on a larger display.</p>
 <div id="game">
-  <div class="panel title">DICE BRAWLER <small id="turnT">FIGHT 1/3 · TURN 1</small></div>
+  <header class="panel title"><span>DICE BRAWLER</span><small id="turnT">FIGHT 1/3 · TURN 1</small><span class="tools"><button id="dbgBtn" aria-haspopup="dialog">DEBUG</button></span></header>
 
-  <div class="top">
-    <div class="panel"><canvas id="view" width="160" height="100"></canvas></div>
-    <div class="panel side">
-      <div class="portrait"><canvas id="hero" width="12" height="14"></canvas>
-        <div style="flex:1"><div class="name">HERO</div>
-          <div class="bar"><i id="pHp"></i></div><div id="pHpT"></div></div></div>
-      <div><div id="eName"></div>
+  <section class="panel top" aria-label="Opponent">
+    <div class="arena"><canvas id="view" width="320" height="100" aria-label="Dungeon and current opponent"></canvas>
+      <div class="enemy-info">
+        <div class="owner-label">OPPONENT</div>
+        <div id="eName"></div>
         <div class="bar"><i id="bHp"></i></div>
-        <div class="row2"><span id="bHpT"></span><span id="ePas"></span></div></div>
-      <div id="intent"></div>
-      <div class="sep"></div>
-      <div class="kv">Damage<b id="kDmg"></b></div>
-      <div class="kv">Dodge<b id="kDod"></b></div>
-      <div class="kv">Crit<b id="kCrit"></b></div>
+        <div id="bHpT"></div>
+        <div id="ePas"></div>
+        <div id="intent"></div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="mid">
-    <div class="panel tray"><div class="lbl" id="hint">THROW THE DICE</div><div id="dice"></div></div>
+  <section class="panel player-zone" aria-label="Your health, dice, upgrades, and actions">
+    <div class="player-hud">
+      <div class="portrait"><canvas id="hero" width="12" height="14" aria-label="Your hero"></canvas>
+        <div class="player-health"><div class="name">YOU <span id="pHpT"></span></div>
+          <div class="bar"><i id="pHp"></i></div></div>
+      </div>
+
+    </div>
+    <div class="mid">
+    <div class="panel tray"><div class="lbl" id="hint">THROW THE DICE</div><div id="dice" role="group" aria-label="Dice to assign"></div><p id="warning" role="status"></p></div>
     <div class="stats">
-      <button class="stat str" data-k="str"><span class="n">STR</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
-      <button class="stat agi" data-k="agi"><span class="n">AGI</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
-      <button class="stat luk" data-k="luk"><span class="n">LUCK</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
-      <button class="stat heal" data-k="heal"><span class="n">HEAL</span><span class="v"></span><span class="p"></span><span class="e"></span></button>
+      <div class="upgrade-label">PERMANENT UPGRADES</div><div class="recovery-label">THIS TURN</div>
+      <button class="stat str" data-k="str"><span class="n">STRENGTH</span><span class="v"></span><span class="e"></span></button>
+      <button class="stat agi" data-k="agi"><span class="n">AGILITY</span><span class="v"></span><span class="e"></span></button>
+      <button class="stat luk" data-k="luk"><span class="n">LUCK</span><span class="v"></span><span class="e"></span></button>
+      <button class="stat heal" data-k="heal"><span class="n">RECOVER HP</span><span class="v"></span><span class="e"></span></button>
     </div>
   </div>
 
-  <div class="panel" id="log"></div>
+    <div id="commit-preview" aria-label="Attack consequences" aria-live="polite">
+      <div class="attack-numbers"><span>Hit after defense <b id="kDmg"></b></span><span>Crit <b id="kCrit"></b></span><span>Dodge <b id="kDod"></b></span></div>
+      <div id="forecast"></div>
+    </div>
+    <div class="btns">
+      <button class="btn" id="throw">THROW DICE</button>
+      <button class="btn red" id="attack" disabled>ATTACK &amp; END TURN</button>
+    </div>
+  </section>
 
-  <div class="btns">
-    <button class="btn" id="throw">THROW DICE</button>
-    <button class="btn red" id="attack" disabled>ATTACK!</button>
-    <button class="btn gray" id="dbgBtn">DEBUG</button>
-  </div>
+  <details id="history" class="panel">
+    <summary><span id="latest" role="status"></span><span class="history-toggle">HISTORY</span></summary>
+    <div id="log" role="log" aria-label="Earlier combat events"></div>
+  </details>
 
-  <div class="overlay" id="dbg">
-    <h2>DEBUG VALUES <span style="color:var(--gray);font-size:3cqw">` to toggle</span></h2>
+  <div class="overlay" id="dbg" role="dialog" aria-modal="true" aria-labelledby="dbgTitle">
+    <h2 id="dbgTitle">DEBUG VALUES <span style="color:var(--gray);font-size:3cqw">` to toggle</span></h2>
     <div id="dbgGrid"></div>
     <div class="row"><button class="btn red" id="reset">APPLY &amp; NEW RUN</button><button class="btn gray" id="dbgClose">CLOSE</button></div>
   </div>
-  <div class="overlay" id="banner"><span id="bannerT"></span><div id="bannerS"></div><button class="btn" id="again" style="padding:1.5cqw 4cqw"></button></div>
+  <div class="overlay" id="banner" role="dialog" aria-modal="true" aria-labelledby="bannerT"><span id="bannerT"></span><div id="bannerS"></div><button class="btn" id="again" ></button></div>
 </div>
 
 <script>
@@ -176,6 +110,7 @@ const LABELS = {
 const V = {...DEFAULTS};
 const $ = s => document.querySelector(s);
 let S;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 // ===== Pixel art (EGA palette, left halves mirrored) =====
 const PAL = {k:'#000',G:'#00AA00',g:'#55FF55',r:'#AA0000',R:'#FF5555',Y:'#FFFF55',w:'#FFFFFF',b:'#AA5500',
@@ -203,11 +138,12 @@ const HERO = mirror([
   "...kkk","..kSSS",".kSsss","kSskkk","kSkfff","kSkfkf","kSkfff","kSkffk",
   ".kkfff","..kkff","...kkk","..kccc",".kcccc","kccccc",
 ]);
-function drawSprite(ctx, spr, x, y, sc, flash){
+function drawSprite(ctx, spr, x, y, sc, flash, scaleY=1){
   spr.forEach((row,j)=>[...row].forEach((ch,i)=>{
     if(ch==='.') return;
     ctx.fillStyle = flash ? '#FFF' : PAL[ch];
-    ctx.fillRect(x+i*sc, y+j*sc, sc, sc);
+    const top=Math.round(y+j*sc*scaleY), bottom=Math.round(y+(j+1)*sc*scaleY);
+    ctx.fillRect(x+i*sc, top, sc, bottom-top);
   }));
 }
 drawSprite($('#hero').getContext('2d'), HERO, 0, 0, 1);
@@ -244,6 +180,8 @@ function wall(a,b,side,base,line){
 // tiny pixel icons for the telegraph
 const SWORD=["....w","...w.","..w..","Yw...","bY..."], SHIELD=["BBBBB","BwBwB","BBwBB",".BBB.","..B.."];
 function drawView(time){
+  if(reducedMotion.matches){time=0;fx.shake=0;fx.redFlash=0;fx.bossFlash=0;}
+  cx.save();cx.scale(2,1);
   cx.fillStyle='#000';cx.fillRect(0,0,160,100);
   poly([[0,0],[160,0],[R[2][0]+R[2][2],R[2][1]],[R[2][0],R[2][1]]],'#1c1c1c');
   poly([[0,100],[160,100],[R[2][0]+R[2][2],R[2][1]+R[2][3]],[R[2][0],R[2][1]+R[2][3]]],'#2e2a26');
@@ -260,35 +198,52 @@ function drawView(time){
     cx.fillStyle='#FFFF55';cx.fillRect(x-1,y-3-Math.round(fl*0.6),3,3);
     cx.fillStyle='rgba(255,170,60,0.06)';cx.beginPath();cx.arc(x,y,18+fl*2,0,7);cx.fill();
   });
+  cx.restore();cx.save();cx.translate(80,0);
   if(S && !fx.dead){
     const sx=(fx.shake>0?(fx.shake%2?3:-3):0), bob=Math.round(Math.sin(time/400));
-    drawSprite(cx,foe().sprite,50+sx,22+bob,3,fx.bossFlash>0);
-    // intent bubble above enemy
-    if(S.intent && !S.busy && !S.over){
-      const it=S.intent, y=4+Math.round(Math.sin(time/250)), col=it.type==='guard'?'#55FFFF':'#FF5555';
-      cx.fillStyle='#000';cx.fillRect(62,y,36,14);
-      cx.strokeStyle=col;cx.strokeRect(62.5,y+0.5,35,13);
-      drawSprite(cx,it.type==='guard'?SHIELD:SWORD,65,y+2,2);
-      cx.textAlign='left';cx.font='14px VT323, monospace';cx.fillStyle=col;
-      cx.fillText(it.type==='guard'?'GRD':String(it.dmg),77,y+11);
-    }
+    // Match the arena proportions using integer canvas rows to keep hard pixel edges.
+    const pixelAspect=(cv.clientWidth/cv.width)/(cv.clientHeight/cv.height);
+    drawSprite(cx,foe().sprite,50+sx,22+bob+(1-pixelAspect)*31.5,3,fx.bossFlash>0,pixelAspect);
+
   }
-  if(fx.redFlash>0){cx.fillStyle=`rgba(170,0,0,${fx.redFlash/16})`;cx.fillRect(0,0,160,100);}
+  if(fx.redFlash>0){cx.fillStyle=`rgba(170,0,0,${fx.redFlash/16})`;cx.fillRect(-80,0,320,100);}
   cx.textAlign='center';cx.font='16px VT323, monospace';
   fx.floats=fx.floats.filter(f=>f.t>0);
   fx.floats.forEach(f=>{f.t--;f.y-=0.4;cx.fillStyle='#000';cx.fillText(f.text,f.x+1,f.y+1);cx.fillStyle=f.c;cx.fillText(f.text,f.x,f.y);});
   if(fx.bossFlash>0)fx.bossFlash--; if(fx.redFlash>0)fx.redFlash--; if(fx.shake>0)fx.shake--;
+  cx.restore();
 }
 (function loop(t){drawView(t);requestAnimationFrame(loop);})(0);
 const float=(text,c,x=80,y=40)=>fx.floats.push({text,c,x,y,t:60});
 
 // ===== Game logic =====
-const log=t=>{const d=document.createElement('div');d.textContent='> '+t;const l=$('#log');l.append(d);while(l.children.length>4)l.firstChild.remove();};
+const log=t=>{
+  const latest=$('#latest'), history=$('#log');
+  if(latest.textContent){const d=document.createElement('div');d.textContent=latest.textContent;history.prepend(d);}
+  latest.textContent=t;
+};
 const rnd=n=>1+Math.floor(Math.random()*n);
 const dodgeOf=a=>Math.min(V.maxDodge,a*V.dodgePerAgi);
 const critOf=l=>Math.min(V.maxCrit,l*V.critPerLuk);
 const dmgOf=s=>Math.round(V.baseDamage+s*V.dmgPerStr);
 const pending=k=>S.dice.reduce((a,v,i)=>a+(S.assign[i]===k?v:0),0);
+const SLOT={str:'STR',agi:'AGI',luk:'LUCK',heal:'HEAL'};
+function hitDamage(str,critical=false){
+  let damage=dmgOf(str);
+  if(critical)damage=Math.round(damage*V.critMult);
+  damage=Math.max(1,damage-foe().armor);
+  return S.intent.type==='guard'?Math.max(1,Math.round(damage*V.guardMult)):damage;
+}
+function wastedAllocations(){
+  const warnings=[];
+  const heal=pending('heal')*V.healPerPip, room=V.playerHp-S.pHp;
+  if(heal>room)warnings.push(`${heal-room} healing exceeds your missing HP`);
+  for(const [k,fn] of [['agi',dodgeOf],['luk',critOf]]){
+    if(pending(k)&&fn(S[k])===fn(S[k]+pending(k)))warnings.push(`${SLOT[k]} is already capped; these dice add no benefit`);
+  }
+  return warnings;
+}
+
 
 function rollIntent(){
   const f=foe();
@@ -303,25 +258,25 @@ function rollIntent(){
 function newRun(){
   S={pHp:V.playerHp,str:V.startStr,agi:V.startAgi,luk:V.startLuk,
      fight:0,totalTurns:0,healed:0,over:false};
-  $('#log').innerHTML='';
+  $('#log').innerHTML='';$('#latest').textContent='';$('#history').open=false;
   startFight();
 }
 function startFight(){
   const f=foe();
   Object.assign(S,{eHp:f.hp,turn:1,dice:[],assign:[],sel:null,busy:false,over:false,rolled:false});
-  S.intent=rollIntent();
+  S.intent=rollIntent();S.phase='';S.lastTurn='';
   fx.dead=false;fx.floats=[];
-  $('#banner').classList.remove('on');
+  closeModal($('#banner'));
   log(f.intro);
   render();
 }
 
 function passiveText(f){
   const p=[];
-  if(f.armor)p.push('ARMOR '+f.armor);
-  if(f.regen)p.push('REGEN '+f.regen);
-  if(f.rage)p.push('RAGE');
-  return p.join(' ');
+  if(f.armor)p.push('ARMOR −'+f.armor+' / HIT');
+  if(f.regen)p.push('REGEN +'+f.regen+' HP / TURN');
+  if(f.rage)p.push('RAGE · DAMAGE RISES AS HP FALLS');
+  return p.join(' · ');
 }
 
 function render(){
@@ -335,43 +290,62 @@ function render(){
   $('#ePas').textContent=passiveText(f);
   const it=S.intent, iEl=$('#intent');
   iEl.className=it&&!S.over?it.type:'';
-  iEl.textContent=!it||S.over?'-':it.type==='guard'?'NEXT: GUARD':`NEXT: ${it.heavy?'HEAVY ':''}STRIKE ${it.dmg}`;
-
-  $('#kDmg').textContent=dmgOf(S.str);
-  $('#kDod').textContent=dodgeOf(S.agi)+'%';
-  $('#kCrit').textContent=critOf(S.luk)+'%';
+  iEl.textContent=!it||S.over?'Fight ended':it.type==='guard'?`GUARD · ${Math.round(V.guardMult*100)}% DMG · NO HIT`:`${it.heavy?'HEAVY ':''}STRIKE · ${it.dmg} DMG`;
+  const strength=S.str+pending('str'), luck=S.luk+pending('luk');
+  $('#kDmg').textContent=hitDamage(strength)+' DMG';
+  $('#kDod').textContent=dodgeOf(S.agi+pending('agi'))+'%';
+  $('#kCrit').textContent=hitDamage(strength,true)+' DMG ('+critOf(luck)+'%)';
 
   const dc=$('#dice');dc.innerHTML='';
   const n=S.dice.length||V.diceCount;
   for(let i=0;i<n;i++){
     const b=document.createElement('button'),v=S.dice[i];
-    if(v==null){b.className='die empty';b.textContent='?';dc.append(b);continue;}
+    if(v==null){b.className='die empty';b.textContent=S.busy?'—':'?';b.disabled=true;b.setAttribute('aria-label',S.busy?'Dice committed':'Unrolled die');dc.append(b);continue;}
     b.className='die'+(S.sel===i?' sel':'')+(S.assign[i]?' '+S.assign[i]:'')+(S.rolled?' roll':'');
-    b.textContent=v;
-    b.onclick=()=>{if(S.busy||S.over)return;if(S.assign[i]){S.assign[i]=null;S.sel=i;}else S.sel=(S.sel===i?null:i);render();};
+    b.innerHTML=`<span>${v}</span><small>${S.assign[i]?'✓ '+SLOT[S.assign[i]]:S.sel===i?'PICKED':'FREE'}</small>`;
+    b.dataset.die=i;b.disabled=S.busy||S.over;
+    b.setAttribute('aria-pressed',String(S.sel===i));
+    b.setAttribute('aria-label',`Die ${i+1}: ${v}, ${S.assign[i]?'assigned to '+SLOT[S.assign[i]]:'unassigned'}. Select to move.`);
+    b.onclick=()=>{if(S.busy||S.over)return;if(S.assign[i]){S.assign[i]=null;S.sel=i;}else S.sel=(S.sel===i?null:i);render();$(`[data-die="${i}"]`).focus();};
     dc.append(b);
   }
   S.rolled=false;
 
   document.querySelectorAll('.stat').forEach(el=>{
     const k=el.dataset.k,p=pending(k);
+    el.disabled=S.busy||S.over||!S.dice.length||S.sel==null;
+    el.classList.remove('capped');
+    el.classList.toggle('assigned',p>0);
     if(k==='heal'){
       const amt=Math.min(V.playerHp-S.pHp,p*V.healPerPip);
-      el.querySelector('.v').textContent=p?'+'+p:'-';
-      el.querySelector('.p').textContent='';
-      el.querySelector('.e').textContent=p?`+${amt} HP`:`${V.healPerPip}HP/PIP`;
+      el.querySelector('.v').textContent='+'+amt+' HP';
+      el.querySelector('.e').textContent=S.pHp>=V.playerHp?'FULL HP':`${V.healPerPip} HP/PIP`;
+      el.classList.toggle('capped',S.pHp>=V.playerHp);
       return;
     }
-    const v=S[k]+p;
-    el.querySelector('.v').textContent=v;
-    el.querySelector('.p').textContent=p?'+'+p:'';
-    el.querySelector('.e').textContent=k==='str'?dmgOf(v)+' DMG':k==='agi'?dodgeOf(v)+'% DODGE':critOf(v)+'% CRIT';
+    const v=S[k]+p, effect=k==='str'?dmgOf(v)+' BASE HIT':k==='agi'?dodgeOf(v)+'% DODGE':critOf(v)+'% CRIT';
+    const capped=k==='agi'?dodgeOf(v)>=V.maxDodge:k==='luk'&&critOf(v)>=V.maxCrit;
+    el.querySelector('.v').textContent=p?S[k]+' → '+v:v;
+    el.querySelector('.e').textContent=effect+(capped?' · CAP':'');
+    el.classList.toggle('capped',capped);
   });
 
+  const healed=Math.min(V.playerHp,S.pHp+pending('heal')*V.healPerPip);
+  const normal=hitDamage(strength), critical=hitDamage(strength,true);
+  const kills=normal>=S.eHp;
+  const after=it.type==='guard'||kills?healed:Math.max(0,healed-it.dmg);
+  const enemyAfter=Math.min(f.hp,Math.max(0,S.eHp-normal)+(kills?0:f.regen));
+  $('#forecast').textContent=S.busy?S.phase:S.over?'COMBAT COMPLETE':`HP ${S.pHp}${healed!==S.pHp?' + '+(healed-S.pHp):''} → ${after}${it.type==='strike'&&!kills?' if hit':''} · ${kills?'Lethal hit':critical>=S.eHp?'Lethal on crit':'Enemy '+enemyAfter+' HP'+(f.regen?' after regen':' on normal hit')}`;
   const all=S.dice.length&&S.assign.every(Boolean);
   $('#throw').disabled=S.busy||S.over||S.dice.length>0;
   $('#attack').disabled=!all||S.busy||S.over;
-  $('#hint').textContent=!S.dice.length?'THROW THE DICE':all?'READY - ATTACK!':'PICK DIE > PICK SLOT';
+  const remaining=S.assign.filter(a=>!a).length;
+  $('#hint').textContent=S.over?'FIGHT ENDED':S.busy?S.phase:!S.dice.length?'':all?'Ready · Select a die to change it':S.sel!=null?`Choose a destination for die ${S.dice[S.sel]}`:`SELECT A DIE · ${remaining} remaining`;
+  $('#attack').textContent=S.busy?S.phase:all?'ATTACK & END TURN':S.dice.length?`ASSIGN ${remaining} MORE`:'ATTACK & END TURN';
+  const warnings=wastedAllocations();
+  $('#warning').textContent=warnings.length?'! '+warnings.map(w=>w.replace(' healing exceeds your missing HP',' HP will be wasted').replace(' is already capped; these dice add no benefit',' capped')).join(' · '):'';
+  $('#warning').title=warnings.join('. ');
+  $('#warning').setAttribute('aria-label',warnings.join('. '));
 }
 
 $('#throw').onclick=()=>{
@@ -391,7 +365,8 @@ document.querySelectorAll('.stat').forEach(el=>el.onclick=()=>{
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 $('#attack').onclick=async()=>{
-  S.busy=true;
+  if(S.busy||S.over||!S.dice.length||!S.assign.every(Boolean))return;
+  S.busy=true;S.phase='YOUR ATTACK…';S.totalTurns++;
   const f=foe(), it=S.intent;
   const g={str:pending('str'),agi:pending('agi'),luk:pending('luk')}, hp=pending('heal');
   for(const k in g)S[k]+=g[k];
@@ -406,45 +381,48 @@ $('#attack').onclick=async()=>{
   await sleep(450);
 
   // player strikes
-  let dmg=dmgOf(S.str),crit=Math.random()*100<critOf(S.luk);
-  if(crit)dmg=Math.round(dmg*V.critMult);
-  dmg=Math.max(1,dmg-f.armor);
+  const crit=Math.random()*100<critOf(S.luk), dmg=hitDamage(S.str,crit);
   const guarded=it.type==='guard';
-  if(guarded)dmg=Math.max(1,Math.round(dmg*V.guardMult));
   S.eHp-=dmg;fx.bossFlash=8;fx.shake=10;
   float((crit?'CRIT ':'-')+dmg+(crit?'!':''),crit?'#FFFF55':'#FFFFFF',80,30);
   let msg=crit?`CRITICAL HIT for ${dmg}`:`You hit for ${dmg}`;
   if(f.armor)msg+=` (armor -${f.armor})`;
-  if(guarded)msg+=' - it guards, half damage';
+  if(guarded)msg+=` - guard: ${Math.round(V.guardMult*100)}% damage`;
+  S.lastTurn=`You dealt ${dmg}${crit?' critical':''} damage.`;
   log(msg+'.');
   render();
   if(S.eHp<=0)return fightWon();
+  S.phase='ENEMY TURN…';render();
   await sleep(750);
 
   // enemy acts
   if(guarded){
+    S.lastTurn+=' Enemy guarded and did not attack.';
     float('GUARD','#55FFFF',80,70);log(`The ${f.name} holds its guard.`);
   }else if(Math.random()*100<dodgeOf(S.agi)){
+    S.lastTurn+=' You dodged the strike.';
     float('DODGE!','#55FF55',80,70);log(`You dodge the ${it.heavy?'heavy ':''}strike!`);
   }else{
+    S.lastTurn+=` Enemy dealt ${it.dmg} damage (${dodgeOf(S.agi)}% dodge chance).`;
     S.pHp-=it.dmg;fx.redFlash=12;float('-'+it.dmg,'#FF5555',80,75);
     log(`The ${f.name} ${it.heavy?'SMASHES':'hits'} you for ${it.dmg}.`);render();
     if(S.pHp<=0)return end(false);
   }
   if(f.regen&&S.eHp<f.hp){
     const r=Math.min(f.regen,f.hp-S.eHp);S.eHp+=r;
+    S.lastTurn+=` Enemy regenerated ${r} HP.`;
     await sleep(300);float('+'+r,'#55FF55',110,45);log(`The ${f.name} regenerates ${r} HP.`);
   }
-  S.turn++;S.totalTurns++;S.intent=rollIntent();S.busy=false;render();
+  S.turn++;S.intent=rollIntent();S.busy=false;render();
 };
 
 function fightWon(){
-  S.totalTurns++;S.over=true;fx.dead=true;render();
+  S.over=true;fx.dead=true;render();
   const f=foe();
   log(`The ${f.name} falls!`);
   if(S.fight>=FIGHTERS.length-1)return end(true);
   setTimeout(()=>showBanner(f.name+' DEFEATED','var(--luk)',
-    `Took ${S.turn} turns. HP ${S.pHp}/${V.playerHp}.<br>Next: ${FIGHTERS[S.fight+1].name}`,'NEXT FIGHT',()=>{
+    `Took ${S.turn} turns. HP ${S.pHp}/${V.playerHp}.<br>Your upgrades and current HP carry forward.${V.betweenFightHeal?` You recover up to ${V.betweenFightHeal} HP.`:''}<br>Next: ${FIGHTERS[S.fight+1].name}`,'NEXT FIGHT',()=>{
       S.fight++;
       if(V.betweenFightHeal){const a=Math.min(V.playerHp-S.pHp,V.betweenFightHeal);S.pHp+=a;if(a)log(`You catch your breath: +${a} HP.`);}
       startFight();
@@ -453,13 +431,13 @@ function fightWon(){
 function end(win){
   S.over=true;render();
   if(!win)log('Darkness takes you...');
-  const sum=`${win?'Gauntlet cleared':'Fell to the '+foe().name} in ${S.totalTurns} turns.<br>STR ${S.str} · AGI ${S.agi} · LUCK ${S.luk} · healed ${S.healed}`;
+  const sum=`${win?'Gauntlet cleared':'Fell to the '+foe().name} in ${S.totalTurns} ${S.totalTurns===1?'turn':'turns'}.<br>STR ${S.str} · AGI ${S.agi} · LUCK ${S.luk} · healed ${S.healed} HP<br><br>Last turn: ${S.lastTurn}`;
   setTimeout(()=>showBanner(win?'VICTORY!':'YOU DIED',win?'var(--luk)':'var(--str)',sum,'NEW RUN',newRun),600);
 }
 function showBanner(title,color,sub,btn,fn){
   $('#bannerT').textContent=title;$('#bannerT').style.color=color;
   $('#bannerS').innerHTML=sub;$('#again').textContent=btn;$('#again').onclick=fn;
-  $('#banner').classList.add('on');
+  openModal($('#banner'));
 }
 
 // ===== Debug =====
@@ -467,17 +445,41 @@ const grid=$('#dbgGrid');
 function numInput(label,get,set){
   const l=document.createElement('label');l.textContent=label;
   const i=document.createElement('input');i.type='number';i.step='any';i.value=get();
-  i.oninput=()=>{const n=parseFloat(i.value);if(!isNaN(n)){set(n);render();}};
+  i.dataset.initial=get();i.applyValue=()=>{const n=parseFloat(i.value);if(Number.isFinite(n)){set(Math.max(0,n));}};
   l.append(i);grid.append(l);
 }
 const h3=t=>{const h=document.createElement('h3');h.textContent=t;grid.append(h);};
 h3('GENERAL');
 for(const k in V)numInput(LABELS[k],()=>V[k],n=>V[k]=n);
 FIGHTERS.forEach((f,fi)=>{h3(`FIGHT ${fi+1}: ${f.name}`);for(const k in F_KEYS)numInput(F_KEYS[k],()=>f[k],n=>f[k]=n);});
-const toggleDbg=()=>$('#dbg').classList.toggle('on');
+let modalReturnFocus;
+function openModal(modal){
+  modalReturnFocus=document.activeElement;
+  modal.classList.add('on');
+  for(const child of $('#game').children)if(child!==modal)child.inert=true;
+  modal.querySelector('button,input').focus();
+}
+function closeModal(modal){
+  modal.classList.remove('on');
+  for(const child of $('#game').children)child.inert=false;
+  if(modalReturnFocus?.isConnected&&!modalReturnFocus.disabled)modalReturnFocus.focus();
+}
+const toggleDbg=()=>{
+  if($('#dbg').classList.contains('on'))closeModal($('#dbg'));
+  else if(!S.busy&&!$('#banner').classList.contains('on'))openModal($('#dbg'));
+};
 $('#dbgBtn').onclick=toggleDbg;$('#dbgClose').onclick=toggleDbg;
-$('#reset').onclick=()=>{$('#dbg').classList.remove('on');newRun();};
-addEventListener('keydown',e=>{if(e.key==='`')toggleDbg();});
+$('#reset').onclick=()=>{for(const input of grid.querySelectorAll('input'))input.applyValue();V.playerHp=Math.max(1,V.playerHp);V.diceCount=Math.min(12,Math.max(1,Math.floor(V.diceCount)));V.diceSides=Math.max(1,Math.floor(V.diceSides));for(const f of FIGHTERS)f.hp=Math.max(1,f.hp);closeModal($('#dbg'));newRun();$('#throw').focus();};
+addEventListener('keydown',e=>{
+  const modal=document.querySelector('.overlay.on');
+  if(e.key==='Escape'&&modal?.id==='dbg'){closeModal(modal);return;}
+  if(e.key==='`'&&!['INPUT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();toggleDbg();}
+  if(e.key==='Tab'&&modal){
+    const controls=[...modal.querySelectorAll('button,input')].filter(el=>!el.disabled), first=controls[0],last=controls.at(-1);
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+});
 
 newRun();
 </script>
